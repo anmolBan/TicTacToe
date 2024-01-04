@@ -1,4 +1,4 @@
-const  gameStatus = document.querySelector(".player-info");
+const  gameStatus = document.querySelector(".game-status");
 const gameBoard = document.querySelector(".game-board");
 const row1 = document.getElementsByClassName("row1");
 const row2 = document.getElementsByClassName("row2");
@@ -11,21 +11,27 @@ let currentPlayer = "X";
 gameStatus.innerText = "Current Player - " + currentPlayer;
 
 let countX = 0;
-let countY = 0;
+let countO = 0;
 
 function mousedOver(){
     this.style.cursor = "pointer";
 }
 
-for(let i = 0; i < matrix.length; i++){
-    for(let j = 0; j < matrix[i].length; j++){
-        matrix[i][j].addEventListener("mouseover", mousedOver);
+function addEventListenersToCells(){
+    for(let i = 0; i < matrix.length; i++){
+        for(let j = 0; j < matrix[i].length; j++){
+            matrix[i][j].addEventListener("mouseover", mousedOver);
+    
+            matrix[i][j].addEventListener("mouseout", function(){
+                this.style.cursor = "auto";
+            });
 
-        matrix[i][j].addEventListener("mouseout", function(){
-            this.style.cursor = "auto";
-        });
+            matrix[i][j].addEventListener("click", clickHandler);
+        }
     }
 }
+
+addEventListenersToCells();
 
 function endTheGame(winner, coordinates){
     gameStatus.innerText = "Winner Player - " + winner;
@@ -40,10 +46,20 @@ function endTheGame(winner, coordinates){
             matrix[i][j].removeEventListener("click", clickHandler);
         }
     }
+    newGame.classList.add("active");
+}
+
+function gameTied(){
+    gameStatus.innerText = "Game Tied!";
+    newGame.classList.add("active");
 }
 
 function checkWin(){
-    if(countX < 3 && countY < 3){
+    if(countX + countO === 9){
+        gameTied();
+        return;
+    }
+    if(countX < 3 && countO < 3){
         return;
     }
 
@@ -156,7 +172,7 @@ function changePlayer(){
     }
     else{
         currentPlayer = "X";
-        countY++;
+        countO++;
     }
     gameStatus.innerText = "Current Player - " + currentPlayer;
 }
@@ -168,11 +184,23 @@ function clickHandler(){
     this.removeEventListener("mouseover", mousedOver);
     this.removeEventListener("click", clickHandler);
     checkWin();
-    // console.log("clicked");
 }
 
-for(let i = 0; i < matrix.length; i++){
-    for(let j = 0; j < matrix[i].length; j++){
-        matrix[i][j].addEventListener("click", clickHandler);
+newGame.addEventListener("click", function(){
+    currentPlayer = "X";
+    gameStatus.innerText = "Current Player - " + currentPlayer;
+
+    countX = 0;
+    countO = 0;
+
+    addEventListenersToCells();
+
+    for(let i = 0; i < 3; i++){
+        for(let j = 0; j < 3; j++){
+            matrix[i][j].innerText = "";
+            matrix[i][j].style.backgroundColor = "transparent";
+        }
     }
-}
+
+    newGame.classList.remove("active");
+});
